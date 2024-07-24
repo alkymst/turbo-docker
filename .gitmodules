@@ -1,0 +1,4 @@
+[submodule "apps/web"]
+	path = apps/web
+	url = git@bitbucket.org:mecumauctions/ae-frontend.git
+  branch = develop
