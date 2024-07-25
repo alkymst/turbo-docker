@@ -9,9 +9,9 @@ RUN apk update
 RUN apk add --no-cache libc6-compat
 # Set working directory
 WORKDIR /app
-RUN yarn global add turbo
+RUN npm install -g turbo
 COPY . .
-RUN turbo prune web --docker
+RUN turbo prune @americaneagle/mecum --docker
 
 # Add lockfile and package.json's of isolated subworkspace
 FROM base AS installer
@@ -23,7 +23,7 @@ WORKDIR /app
 COPY .gitignore .gitignore
 COPY --from=builder /app/out/json/ .
 COPY --from=builder /app/out/package-lock.json ./package-lock.json
-RUN yarn install
+RUN npm ci
 
 # Build the project
 COPY --from=builder /app/out/full/ .
@@ -36,7 +36,7 @@ COPY turbo.json turbo.json
 # ARG TURBO_TOKEN
 # ENV TURBO_TOKEN=$TURBO_TOKEN
 
-RUN yarn turbo build --filter=web...
+RUN npx turbo build --filter=@americaneagle/mecum...
 
 FROM base AS runner
 WORKDIR /app
