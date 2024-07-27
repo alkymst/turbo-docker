@@ -29,12 +29,33 @@ RUN npm ci
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
-# Uncomment and use build args to enable remote caching
-# ARG TURBO_TEAM
-# ENV TURBO_TEAM=$TURBO_TEAM
+# Added to trigger nextjs standalone mode
+ENV BUILD_STANDALONE true
 
-# ARG TURBO_TOKEN
-# ENV TURBO_TOKEN=$TURBO_TOKEN
+# Uncomment and use build args to enable remote caching
+ENV NODE_ENV=development
+ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
+ENV MYMECUM_ID=${MYMECUM_ID}
+ENV MYMECUM_SECRET=${MYMECUM_SECRET}
+ENV NEXTAUTH_URL=${NEXTAUTH_URL}
+ENV NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+ENV NEXT_PUBLIC_ALGOLIA_APPLICATION_ID=${NEXT_PUBLIC_ALGOLIA_APPLICATION_ID}
+ENV NEXT_PUBLIC_ALGOLIA_INDEX_NAME=${NEXT_PUBLIC_ALGOLIA_INDEX_NAME}
+ENV NEXT_PUBLIC_ALGOLIA_SEARCH_ONLY_KEY=${NEXT_PUBLIC_ALGOLIA_SEARCH_ONLY_KEY}
+ENV NEXT_PUBLIC_CLOUDINARY_DOMAIN=${NEXT_PUBLIC_CLOUDINARY_DOMAIN}
+ENV NEXT_PUBLIC_ENABLE_STELLATE=${NEXT_PUBLIC_ENABLE_STELLATE}
+ENV NEXT_PUBLIC_IMAGE_DOMAINS=${NEXT_PUBLIC_IMAGE_DOMAINS}
+ENV NEXT_PUBLIC_MYMECUM_DOMAIN=${NEXT_PUBLIC_MYMECUM_DOMAIN}
+ENV NEXT_PUBLIC_URL=${NEXT_PUBLIC_URL}
+ENV ODR_SECRET=${ODR_SECRET}
+ENV UPSTASH_REDIS_ALLOWED_COUNTRIES=${UPSTASH_REDIS_ALLOWED_COUNTRIES}
+ENV UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
+ENV UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
+ENV WORDPRESS_APPLICATION_PASSWORD=${WORDPRESS_APPLICATION_PASSWORD}
+ENV WORDPRESS_APPLICATION_USERNAME=${WORDPRESS_APPLICATION_USERNAME}
+ENV WORDPRESS_PREVIEW_SECRET=${WORDPRESS_PREVIEW_SECRET}
+ENV WORDPRESS_URL=${WORDPRESS_URL}
+ENV NEXT_PUBLIC_SECRET=${NEXT_PUBLIC_SECRET}
 
 RUN npx turbo build --filter=@americaneagle/mecum...
 
@@ -54,5 +75,16 @@ COPY --from=installer /app/apps/web/package.json .
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=installer --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+# RUN chown -R nextjs:nodejs apps/web/server.js
+
+
+EXPOSE 3000
+
+ENV PORT 3000
+
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+# CMD HOSTNAME="0.0.0.0" node apps/web/server.js
 
 CMD node apps/web/server.js
